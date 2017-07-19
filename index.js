@@ -1,4 +1,5 @@
 const kue = require('kue')
+const debug = require('debug')('great:queue')
 
 /**
  * Returns a queue backed by Redis, built on Kue.
@@ -6,8 +7,16 @@ const kue = require('kue')
  * @returns {Object} integreat-compatible queue object
  */
 module.exports = function (options = {}) {
-  const queue = options.queue || kue.createQueue(options.kue)
-  const namespace = options.namespace || 'great'
+  const {
+    queue = kue.createQueue(options.kue),
+    maxConcurrency = 1,
+    namespace = 'great'
+  } = options
+
+  let nextHandle = 1
+  const unsubscribed = {}
+
+  debug('Redis queue created for namespace %s, max concurrency %s.', namespace, maxConcurrency)
 
   return {
     queue,
@@ -18,22 +27,24 @@ module.exports = function (options = {}) {
      * scheduled for that time. If not, the action is «scheduled» for right now.
      * @param {Object} payload - Job to schedule
      * @param {integer} timestamp - Timestamp to schedule action for
-     * @returns {void}
+     * @returns {Object} Job
      */
     async push (payload, timestamp) {
       if (!payload) {
-        return
+        return null
       }
 
       const job = queue.create(namespace, payload)
       const time = (timestamp) ? new Date(timestamp) : null
       if (time) {
         job.delay(time).save()
+        debug('Scheduled %o for %s.', payload, time)
       } else {
         job.save()
+        debug('Queued %o.', payload)
       }
 
-      return job.id
+      return job
     },
 
     /**
@@ -44,12 +55,21 @@ module.exports = function (options = {}) {
      * @returns {object} Subscription handle (or null)
      */
     subscribe (handler) {
-      queue.process(namespace, async (job, ctx, done) => {
+      const handle = nextHandle++
+
+      queue.process(namespace, maxConcurrency, async (job, ctx, done) => {
+        if (unsubscribed[handle]) {
+          return ctx.pause(5000, () => {
+            debug(`Unsubscribed from ${handle}.`)
+          })
+        }
+
         await handler(job.data)
         done()
       })
 
-      return null
+      debug('Subscribed %o with handle %s.', handler, handle)
+      return handle
     },
 
     /**
@@ -59,6 +79,8 @@ module.exports = function (options = {}) {
      * @returns {void}
      */
     unsubscribe (handle) {
+      unsubscribed[handle] = true
+      debug('Unubscribed handle %s.', handle)
     }
   }
 }

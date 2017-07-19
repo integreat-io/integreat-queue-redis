@@ -30,7 +30,7 @@ test.serial('should push job to queue', async (t) => {
   t.is(kueue.testMode.jobs.length, 1)
   t.is(kueue.testMode.jobs[0].data, job)
   t.is(kueue.testMode.jobs[0].type, 'great')
-  t.is(ret, kueue.testMode.jobs[0].id)
+  t.is(ret, kueue.testMode.jobs[0])
 })
 
 test.serial('should not push null to queue', (t) => {
