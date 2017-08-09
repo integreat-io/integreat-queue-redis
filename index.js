@@ -59,9 +59,7 @@ module.exports = function (options = {}) {
 
       queue.process(namespace, maxConcurrency, async (job, ctx, done) => {
         if (unsubscribed[handle]) {
-          return ctx.pause(5000, () => {
-            debug(`Unsubscribed from ${handle}.`)
-          })
+          return ctx.pause(5000, () => {})
         }
 
         await handler(job.data)
