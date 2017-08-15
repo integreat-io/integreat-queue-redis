@@ -1,6 +1,6 @@
 {
   "name": "integreat-queue-redis",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Integreat queue interface for Redis (build on Bee-Queue)",
   "author": "Kjell-Morten Bratsberg Thorsen <post@kjellmorten.no> (http://kjellmorten.no/)",
   "license": "ISC",
