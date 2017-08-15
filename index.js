@@ -1,20 +1,21 @@
-const kue = require('kue')
+const Queue = require('bee-queue')
 const debug = require('debug')('great:queue')
 
 /**
- * Returns a queue backed by Redis, built on Kue.
- * @param {Object} options - Options object (queue - instance to use, kue - options for kue, namespace)
+ * Returns a queue backed by Redis, built on Bee-Queue.
+ * @param {Object} options - Options object (queue - instance to use, bee - options for bee-queue, namespace)
  * @returns {Object} integreat-compatible queue object
  */
 module.exports = function (options = {}) {
   const {
-    queue = kue.createQueue(options.kue),
     maxConcurrency = 1,
-    namespace = 'great'
+    namespace = 'great',
+    redis,
+    bee
   } = options
 
-  let nextHandle = 1
-  const unsubscribed = {}
+  const settings = Object.assign({activateDelayedJobs: true, redis}, bee)
+  const queue = (options.queue) ? options.queue : new Queue(namespace, settings)
 
   debug('Redis queue created for namespace %s, max concurrency %s.', namespace, maxConcurrency)
 
@@ -34,10 +35,15 @@ module.exports = function (options = {}) {
         return null
       }
 
-      const job = queue.create(namespace, payload)
+      if (queue._isClosed) {
+        debug('Queue is closed.')
+        return null
+      }
+
+      const job = queue.createJob(payload)
       const time = (timestamp) ? new Date(timestamp) : null
-      if (time) {
-        job.delay(time).save()
+      if (time && !isNaN(time.getTime())) {
+        job.delayUntil(time).save()
         debug('Scheduled %o for %s.', payload, time)
       } else {
         job.save()
@@ -55,19 +61,12 @@ module.exports = function (options = {}) {
      * @returns {object} Subscription handle (or null)
      */
     subscribe (handler) {
-      const handle = nextHandle++
-
-      queue.process(namespace, maxConcurrency, async (job, ctx, done) => {
-        if (unsubscribed[handle]) {
-          return ctx.pause(5000, () => {})
-        }
-
-        await handler(job.data)
-        done()
+      queue.process(maxConcurrency, async (job) => {
+        return handler(job.data)
       })
 
-      debug('Subscribed %o with handle %s.', handler, handle)
-      return handle
+      debug('Subscribed `%o`.', handler)
+      return null
     },
 
     /**
@@ -77,7 +76,7 @@ module.exports = function (options = {}) {
      * @returns {void}
      */
     unsubscribe (handle) {
-      unsubscribed[handle] = true
+      queue.close()
       debug('Unubscribed handle %s.', handle)
     }
   }

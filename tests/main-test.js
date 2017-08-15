@@ -15,12 +15,12 @@ test('should return integreat-compatible queue object', (t) => {
   t.is(typeof queue.unsubscribe, 'function')
 })
 
-test('should return kue instance', (t) => {
-  const kue = {}
+test('should return bee instance', (t) => {
+  const bee = {}
 
-  const queue = redis({queue: kue})
+  const queue = redis({queue: bee})
 
-  t.is(queue.queue, kue)
+  t.is(queue.queue, bee)
 })
 
 test('should return queue namespace', (t) => {

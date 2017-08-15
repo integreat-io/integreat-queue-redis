@@ -1,7 +1,7 @@
 {
   "name": "integreat-queue-redis",
   "version": "0.1.1",
-  "description": "Integreat queue interface for Redis (Kue)",
+  "description": "Integreat queue interface for Redis (build on Bee-Queue)",
   "author": "Kjell-Morten Bratsberg Thorsen <post@kjellmorten.no> (http://kjellmorten.no/)",
   "license": "ISC",
   "main": "index.js",
@@ -43,8 +43,8 @@
     "npm": ">= 5.0.0"
   },
   "dependencies": {
-    "debug": "^2.6.8",
-    "kue": "^0.11.6"
+    "bee-queue": "^1.0.0",
+    "debug": "^2.6.8"
   },
   "devDependencies": {
     "ava": "^0.21.0",

@@ -1,69 +1,60 @@
 import test from 'ava'
-import kue from 'kue'
 
-import redis from '..'
+import m from '..'
 
-// Helpers
+const namespace = 'push-test'
 
-const kueue = kue.createQueue()
-
-test.before((t) => {
-  kueue.testMode.enter()
-})
-
-test.afterEach.always((t) => {
-  kueue.testMode.clear()
-})
-
-test.after.always((t) => {
-  kueue.testMode.exit()
-})
-
-// Tests
-
-test.serial('should push job to queue', async (t) => {
+test('should push job to queue', async (t) => {
   const job = {}
-  const queue = redis()
+  const queue = m({namespace})
 
   const ret = await queue.push(job)
 
-  t.is(kueue.testMode.jobs.length, 1)
-  t.is(kueue.testMode.jobs[0].data, job)
-  t.is(kueue.testMode.jobs[0].type, 'great')
-  t.is(ret, kueue.testMode.jobs[0])
+  t.truthy(ret)
+  t.is(ret.data, job)
+  t.is(ret.status, 'created')
 })
 
-test.serial('should not push null to queue', (t) => {
+test('should not push null to queue', async (t) => {
   const job = null
-  const queue = redis()
+  const queue = m({namespace})
 
-  queue.push(job)
+  const ret = await queue.push(job)
 
-  t.is(kueue.testMode.jobs.length, 0)
+  t.is(ret, null)
 })
 
-test.serial('should schedule job', (t) => {
+test('should schedule job', async (t) => {
   const job = {}
-  const queue = redis()
+  const queue = m({namespace})
   const timestamp = Date.now() + 60000
 
-  queue.push(job, timestamp)
+  const ret = await queue.push(job, timestamp)
 
-  t.is(kueue.testMode.jobs.length, 1)
-  const delay = kueue.testMode.jobs[0]._delay
-  t.true(delay <= 60000)
-  t.true(delay >= 60000 - 1000) // Gives the test one second wiggle room
+  t.truthy(ret)
+  t.is(ret.options.delay, timestamp)
 })
 
-test.serial('should push without schedule on invalid timestamp', (t) => {
+test('should push without schedule on invalid timestamp', async (t) => {
   const job = {}
-  const queue = redis()
+  const queue = m({namespace})
   const timestamp = 'invalid'
 
-  t.notThrows((t) => {
-    queue.push(job, timestamp)
-  })
+  await t.notThrows(async () => {
+    const ret = await queue.push(job, timestamp)
 
-  t.is(kueue.testMode.jobs.length, 1)
-  t.is(kueue.testMode.jobs[0]._delay, undefined)
+    t.truthy(ret)
+    t.falsy(ret.options.delay)
+  })
+})
+
+test('should not when queue is closed', async (t) => {
+  const job = {}
+  const queue = m({queue: {_isClosed: true}})
+
+  await t.notThrows(async () => {
+    const ret = await queue.push(job)
+
+    t.is(ret, null)
+  })
 })
