@@ -1,38 +1,38 @@
 import test from 'ava'
 
-import redis from '..'
+import queue from '..'
 
 test('should exist', (t) => {
-  t.is(typeof redis, 'function')
+  t.is(typeof queue, 'function')
 })
 
 test('should return integreat-compatible queue object', (t) => {
-  const queue = redis()
+  const q = queue()
 
-  t.truthy(queue)
-  t.is(typeof queue.push, 'function')
-  t.is(typeof queue.subscribe, 'function')
-  t.is(typeof queue.unsubscribe, 'function')
+  t.truthy(q)
+  t.is(typeof q.push, 'function')
+  t.is(typeof q.subscribe, 'function')
+  t.is(typeof q.unsubscribe, 'function')
 })
 
 test('should return bee instance', (t) => {
   const bee = {}
 
-  const queue = redis({queue: bee})
+  const q = queue({queue: bee})
 
-  t.is(queue.queue, bee)
+  t.is(q.queue, bee)
 })
 
 test('should return queue namespace', (t) => {
-  const queue = redis()
+  const q = queue()
 
-  t.is(queue.namespace, 'great')
+  t.is(q.namespace, 'great')
 })
 
 test('should get queue namespace from options', (t) => {
   const options = {namespace: 'greater'}
 
-  const queue = redis(options)
+  const q = queue(options)
 
-  t.is(queue.namespace, 'greater')
+  t.is(q.namespace, 'greater')
 })

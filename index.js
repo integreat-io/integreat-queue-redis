@@ -1,6 +1,15 @@
 const Queue = require('bee-queue')
 const debug = require('debug')('great:queue')
 
+const flushType = async (queue, type) => {
+  const jobs = await queue.getJobs(type, {start: 0, end: 24})
+  const p = await Promise.all(jobs.map((job) => queue.removeJob(job.id)))
+  if (jobs.length >= 25) {
+    await flushType(queue, type)
+  }
+  return p
+}
+
 /**
  * Returns a queue backed by Redis, built on Bee-Queue.
  * @param {Object} options - Options object (queue - instance to use, bee - options for bee-queue, namespace)
@@ -78,6 +87,26 @@ module.exports = function (options = {}) {
     unsubscribe (handle) {
       queue.close()
       debug('Unubscribed handle %s.', handle)
+    },
+
+    /**
+     * Flush all queued jobs, i.e. waiting and scheduled.
+     * Active jobs are not flushed.
+     * @returns {Promise}
+     */
+    async flush () {
+      return Promise.all([
+        flushType(queue, 'waiting'),
+        flushType(queue, 'delayed')
+      ])
+    },
+
+    /**
+     * Flush all scheduled jobs.
+     * @returns {Promise}
+     */
+    async flushScheduled () {
+      return flushType(queue, 'delayed')
     }
   }
 }
