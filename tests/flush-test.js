@@ -4,6 +4,13 @@ import queue from '..'
 
 const page = {start: 0, end: 0}
 
+test.afterEach((t) => {
+  const q = t.context.q
+  if (q) {
+    return q.queue.destroy()
+  }
+})
+
 test('should exist', (t) => {
   const q = queue()
 
@@ -12,7 +19,7 @@ test('should exist', (t) => {
 
 test('should flush waiting', async (t) => {
   const job = {}
-  const q = queue({namespace: 'flush1'})
+  const q = t.context.q = queue({namespace: 'flush1'})
   q.push(job)
 
   await q.flush()
@@ -23,7 +30,7 @@ test('should flush waiting', async (t) => {
 
 test('should flush scheduled', async (t) => {
   const job = {}
-  const q = queue({namespace: 'flush2'})
+  const q = t.context.q = queue({namespace: 'flush2'})
   q.push(job, Date.now() + 60000)
 
   await q.flush()
@@ -34,7 +41,7 @@ test('should flush scheduled', async (t) => {
 
 test('should flush more than 25 waiting', async (t) => {
   const job = {}
-  const q = queue({namespace: 'flush3'})
+  const q = t.context.q = queue({namespace: 'flush3'})
   for (let i = 0; i < 26; i++) {
     q.push(job)
   }

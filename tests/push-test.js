@@ -4,9 +4,16 @@ import queue from '..'
 
 const page = {start: 0, end: 0}
 
+test.afterEach((t) => {
+  const q = t.context.q
+  if (q) {
+    return q.queue.destroy()
+  }
+})
+
 test('should push job to queue', async (t) => {
   const job = {}
-  const q = queue({namespace: 'push1'})
+  const q = t.context.q = queue({namespace: 'push1'})
 
   const ret = await q.push(job)
 
@@ -16,26 +23,22 @@ test('should push job to queue', async (t) => {
   const jobs = await q.queue.getJobs('waiting', page)
   t.is(jobs.length, 1)
   t.is(jobs[0].data, job)
-
-  q.flush()
 })
 
 test('should not push null to queue', async (t) => {
   const job = null
-  const q = queue({namespace: 'push2'})
+  const q = t.context.q = queue({namespace: 'push2'})
 
   const ret = await q.push(job)
 
   t.is(ret, null)
   const jobs = await q.queue.getJobs('waiting', page)
   t.is(jobs.length, 0)
-
-  q.flush()
 })
 
 test('should schedule job', async (t) => {
   const job = {}
-  const q = queue({namespace: 'push3'})
+  const q = t.context.q = queue({namespace: 'push3'})
   const timestamp = Date.now() + 60000
 
   const ret = await q.push(job, timestamp)
@@ -45,13 +48,11 @@ test('should schedule job', async (t) => {
   const jobs = await q.queue.getJobs('delayed', page)
   t.is(jobs.length, 1)
   t.is(jobs[0].options.delay, timestamp)
-
-  q.flush()
 })
 
 test('should push without schedule on invalid timestamp', async (t) => {
   const job = {}
-  const q = queue({namespace: 'push4'})
+  const q = t.context.q = queue({namespace: 'push4'})
   const timestamp = 'invalid'
 
   await t.notThrows(async () => {
@@ -63,8 +64,6 @@ test('should push without schedule on invalid timestamp', async (t) => {
     const jobs = await q.queue.getJobs('delayed', page)
     t.is(jobs.length, 0)
   })
-
-  q.flush()
 })
 
 test('should not push when queue is closed', async (t) => {
