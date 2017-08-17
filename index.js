@@ -33,6 +33,22 @@ module.exports = function (options = {}) {
     namespace,
 
     /**
+     * Given a handler function, this function will return the push method.
+     * Primary use is to bind to integreat by passing in this function when
+     * setting up an Integreat instance.
+     * @param {function} handler - Handler function
+     * @returns {function} Push function
+     */
+    bindToQueue (handler) {
+      queue.process(maxConcurrency, async (job) => {
+        return handler(job.data)
+      })
+
+      debug('Bound to queue with handler `%o`.', handler)
+      return this.push.bind(this)
+    },
+
+    /**
      * Push a job to the queue. If a timestamp is included, the job is
      * scheduled for that time. If not, the action is «scheduled» for right now.
      * @param {Object} payload - Job to schedule

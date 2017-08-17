@@ -6,15 +6,6 @@ test('should exist', (t) => {
   t.is(typeof queue, 'function')
 })
 
-test('should return integreat-compatible queue object', (t) => {
-  const q = queue()
-
-  t.truthy(q)
-  t.is(typeof q.push, 'function')
-  t.is(typeof q.subscribe, 'function')
-  t.is(typeof q.unsubscribe, 'function')
-})
-
 test('should return bee instance', (t) => {
   const bee = {}
 
