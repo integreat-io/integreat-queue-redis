@@ -53,9 +53,10 @@ module.exports = function (options = {}) {
      * scheduled for that time. If not, the action is «scheduled» for right now.
      * @param {Object} payload - Job to schedule
      * @param {integer} timestamp - Timestamp to schedule action for
+     * @param {string} id - Job id
      * @returns {Object} Job
      */
-    async push (payload, timestamp) {
+    async push (payload, timestamp = null, id = null) {
       if (!payload) {
         return null
       }
@@ -66,6 +67,10 @@ module.exports = function (options = {}) {
       }
 
       const job = queue.createJob(payload)
+      if (id) {
+        job.setId(id)
+      }
+
       const time = (timestamp) ? new Date(timestamp) : null
       if (time && !isNaN(time.getTime())) {
         await job.delayUntil(time).save()

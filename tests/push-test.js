@@ -40,6 +40,18 @@ test('should return job id', async (t) => {
   t.is(ret, id)
 })
 
+test('should use provided job id', async (t) => {
+  const job = {}
+  const q = t.context.q = queue({namespace: nextNamespace()})
+  const id = 'theid'
+
+  const ret = await q.push(job, null, id)
+
+  const jobs = await q.queue.getJobs('waiting', page)
+  t.is(jobs[0].id, id)
+  t.is(ret, id)
+})
+
 test('should not push null to queue', async (t) => {
   const job = null
   const q = t.context.q = queue({namespace: nextNamespace()})
