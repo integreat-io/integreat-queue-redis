@@ -28,7 +28,7 @@ module.exports = function (options = {}) {
 
   debug('Redis queue created for namespace %s, max concurrency %s.', namespace, maxConcurrency)
 
-  return {
+  const q = {
     queue,
     namespace,
 
@@ -45,7 +45,7 @@ module.exports = function (options = {}) {
       })
 
       debug('Bound to queue with handler `%o`.', handler)
-      return this.push.bind(this)
+      return q.push
     },
 
     /**
@@ -68,14 +68,14 @@ module.exports = function (options = {}) {
       const job = queue.createJob(payload)
       const time = (timestamp) ? new Date(timestamp) : null
       if (time && !isNaN(time.getTime())) {
-        job.delayUntil(time).save()
+        await job.delayUntil(time).save()
         debug('Scheduled %o for %s.', payload, time)
       } else {
-        job.save()
+        await job.save()
         debug('Queued %o.', payload)
       }
 
-      return job
+      return job.id
     },
 
     /**
@@ -125,4 +125,6 @@ module.exports = function (options = {}) {
       return flushType(queue, 'delayed')
     }
   }
+
+  return q
 }
