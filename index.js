@@ -92,7 +92,8 @@ module.exports = function (options = {}) {
      */
     subscribe (handler) {
       queue.process(maxConcurrency, async (job) => {
-        return handler(job.data)
+        const data = Object.assign({id: job.id}, job.data)
+        return handler(data)
       })
 
       debug('Subscribed `%o`.', handler)
