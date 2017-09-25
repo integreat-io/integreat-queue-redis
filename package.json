@@ -39,7 +39,7 @@
   },
   "homepage": "https://github.com/kjellmorten/integreat-queue-redis#readme",
   "engines": {
-    "node": "7.7.x",
+    "node": "8.4.x",
     "npm": ">= 5.0.0"
   },
   "dependencies": {
