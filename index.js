@@ -2,7 +2,7 @@ const Queue = require('bee-queue')
 const debug = require('debug')('great:queue')
 
 const flushType = async (queue, type) => {
-  const jobs = await queue.getJobs(type, {start: 0, end: 24})
+  const jobs = await queue.getJobs(type, { start: 0, end: 24 })
   const p = await Promise.all(jobs.map((job) => queue.removeJob(job.id)))
   if (jobs.length >= 25) {
     await flushType(queue, type)
@@ -23,7 +23,7 @@ module.exports = function (options = {}) {
     bee
   } = options
 
-  const settings = Object.assign({activateDelayedJobs: true, redis}, bee)
+  const settings = Object.assign({ activateDelayedJobs: true, redis }, bee)
   const queue = (options.queue) ? options.queue : new Queue(namespace, settings)
 
   debug('Redis queue created for namespace %s, max concurrency %s.', namespace, maxConcurrency)
@@ -92,7 +92,7 @@ module.exports = function (options = {}) {
      */
     subscribe (handler) {
       queue.process(maxConcurrency, async (job) => {
-        const data = Object.assign({id: job.id}, job.data)
+        const data = Object.assign({ id: job.id }, job.data)
         return handler(data)
       })
 

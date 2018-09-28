@@ -2,7 +2,7 @@ import test from 'ava'
 
 import queue from '..'
 
-const page = {start: 0, end: 0}
+const page = { start: 0, end: 0 }
 
 // Helpers
 
@@ -20,7 +20,7 @@ test.afterEach((t) => {
 
 test('should push job to queue', async (t) => {
   const job = {}
-  const q = t.context.q = queue({namespace: nextNamespace()})
+  const q = t.context.q = queue({ namespace: nextNamespace() })
 
   await q.push(job)
 
@@ -31,7 +31,7 @@ test('should push job to queue', async (t) => {
 
 test('should return job id', async (t) => {
   const job = {}
-  const q = t.context.q = queue({namespace: nextNamespace()})
+  const q = t.context.q = queue({ namespace: nextNamespace() })
 
   const ret = await q.push(job)
 
@@ -42,7 +42,7 @@ test('should return job id', async (t) => {
 
 test('should use provided job id', async (t) => {
   const job = {}
-  const q = t.context.q = queue({namespace: nextNamespace()})
+  const q = t.context.q = queue({ namespace: nextNamespace() })
   const id = 'theid'
 
   const ret = await q.push(job, null, id)
@@ -54,7 +54,7 @@ test('should use provided job id', async (t) => {
 
 test('should not push null to queue', async (t) => {
   const job = null
-  const q = t.context.q = queue({namespace: nextNamespace()})
+  const q = t.context.q = queue({ namespace: nextNamespace() })
 
   const ret = await q.push(job)
 
@@ -65,7 +65,7 @@ test('should not push null to queue', async (t) => {
 
 test('should schedule job', async (t) => {
   const job = {}
-  const q = t.context.q = queue({namespace: nextNamespace()})
+  const q = t.context.q = queue({ namespace: nextNamespace() })
   const timestamp = Date.now() + 60000
 
   const ret = await q.push(job, timestamp)
@@ -78,7 +78,7 @@ test('should schedule job', async (t) => {
 
 test('should push without schedule on invalid timestamp', async (t) => {
   const job = {}
-  const q = t.context.q = queue({namespace: nextNamespace()})
+  const q = t.context.q = queue({ namespace: nextNamespace() })
   const timestamp = 'invalid'
 
   await t.notThrows(async () => {
@@ -93,7 +93,7 @@ test('should not push when queue is closed', async (t) => {
   const job = {}
   const q = queue({
     namespace: nextNamespace(),
-    queue: {_isClosed: true}
+    queue: { _isClosed: true }
   })
 
   await t.notThrows(async () => {

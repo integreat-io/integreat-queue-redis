@@ -11,8 +11,8 @@ test('should exist', (t) => {
 })
 
 test('should register handler', async (t) => {
-  const bee = {process: sinon.spy()}
-  const q = queue({queue: bee})
+  const bee = { process: sinon.spy() }
+  const q = queue({ queue: bee })
   const handler = sinon.stub()
   const data = {}
 
@@ -20,14 +20,14 @@ test('should register handler', async (t) => {
 
   t.is(bee.process.callCount, 1)
   const processFn = bee.process.args[0][1]
-  await processFn({data})
+  await processFn({ data })
   t.true(handler.calledOnce)
   t.true(handler.calledWith(data))
 })
 
 test('should use maxConcurrency', (t) => {
-  const bee = {process: sinon.spy()}
-  const q = queue({queue: bee, maxConcurrency: 5})
+  const bee = { process: sinon.spy() }
+  const q = queue({ queue: bee, maxConcurrency: 5 })
   const handler = () => {}
 
   q.bindToQueue(handler)

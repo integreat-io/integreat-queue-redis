@@ -2,7 +2,7 @@ import test from 'ava'
 
 import queue from '..'
 
-const page = {start: 0, end: 0}
+const page = { start: 0, end: 0 }
 
 test.afterEach((t) => {
   const q = t.context.q
@@ -19,7 +19,7 @@ test('should exist', (t) => {
 
 test('should flush scheduled', async (t) => {
   const job = {}
-  const q = t.context.q = queue({namespace: 'scheduled1'})
+  const q = t.context.q = queue({ namespace: 'scheduled1' })
   q.push(job, Date.now() + 60000)
 
   await q.flushScheduled()
@@ -30,7 +30,7 @@ test('should flush scheduled', async (t) => {
 
 test('should only flush scheduled', async (t) => {
   const job = {}
-  const q = t.context.q = queue({namespace: 'scheduled2'})
+  const q = t.context.q = queue({ namespace: 'scheduled2' })
   q.push(job)
 
   await q.flushScheduled()
@@ -41,7 +41,7 @@ test('should only flush scheduled', async (t) => {
 
 test('should flush more than 25 scheduled', async (t) => {
   const job = {}
-  const q = t.context.q = queue({namespace: 'scheduled3'})
+  const q = t.context.q = queue({ namespace: 'scheduled3' })
   for (let i = 0; i < 26; i++) {
     q.push(job, Date.now() + 60000)
   }

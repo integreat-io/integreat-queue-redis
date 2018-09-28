@@ -9,7 +9,7 @@ test('should exist', (t) => {
 test('should return bee instance', (t) => {
   const bee = {}
 
-  const q = queue({queue: bee})
+  const q = queue({ queue: bee })
 
   t.is(q.queue, bee)
 })
@@ -21,7 +21,7 @@ test('should return queue namespace', (t) => {
 })
 
 test('should get queue namespace from options', (t) => {
-  const options = {namespace: 'greater'}
+  const options = { namespace: 'greater' }
 
   const q = queue(options)
 
