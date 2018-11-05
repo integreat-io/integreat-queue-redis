@@ -3,7 +3,7 @@
 The queue is built on [Bee-Queue](https://github.com/bee-queue/bee-queue).
 
 ## Install
-Requires node v7.
+Requires node v8.6.
 
 Install from npm:
 
