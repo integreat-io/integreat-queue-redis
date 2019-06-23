@@ -35,7 +35,7 @@
   "homepage": "https://github.com/kjellmorten/integreat-queue-redis#readme",
   "engines": {
     "node": ">= 8.6",
-    "npm": ">= 5.0"
+    "npm": ">= 5.4"
   },
   "dependencies": {
     "bee-queue": "^1.2.2",
